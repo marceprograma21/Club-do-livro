@@ -18,6 +18,11 @@ export type Livro = {
   titulo: string;
   autor: string;
   disponivel: boolean;
+  /** Dados opcionais para mostrar o livro na estante da página inicial */
+  descricao?: string;
+  /** Capa como data URL (já reduzida) */
+  imagem?: string;
+  preco?: number;
 };
 
 export type Perfil = 'Administrador' | 'Participante';
@@ -52,7 +57,13 @@ export type Resultado = { ok: true } | { ok: false; erro: string };
 type BibliotecaContextValue = Dados & {
   /** false até ler o localStorage (evita mostrar dados de exemplo por um instante) */
   pronto: boolean;
-  adicionarLivro: (dados: { titulo: string; autor: string }) => Resultado;
+  adicionarLivro: (dados: {
+    titulo: string;
+    autor: string;
+    descricao?: string;
+    imagem?: string;
+    preco?: number;
+  }) => Resultado;
   adicionarParticipante: (dados: {
     nome: string;
     email: string;
@@ -190,9 +201,15 @@ export function BibliotecaProvider({ children }: { children: ReactNode }) {
   function adicionarLivro({
     titulo,
     autor,
+    descricao,
+    imagem,
+    preco,
   }: {
     titulo: string;
     autor: string;
+    descricao?: string;
+    imagem?: string;
+    preco?: number;
   }): Resultado {
     const tituloLimpo = titulo.trim();
     if (!tituloLimpo) return { ok: false, erro: 'Informe o título do livro.' };
@@ -207,6 +224,9 @@ export function BibliotecaProvider({ children }: { children: ReactNode }) {
       titulo: tituloLimpo,
       autor: autor.trim(),
       disponivel: true,
+      descricao: descricao?.trim() || undefined,
+      imagem: imagem || undefined,
+      preco,
     };
     setDados((atual) => ({ ...atual, livros: [...atual.livros, novo] }));
     return { ok: true };
