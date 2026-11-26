@@ -9,13 +9,22 @@ type HeaderProps = {
   logoSrc?: string;
 };
 
-// Cada enlace baja a una sección de /home (el id debe existir en la página)
+// Seções da landing (/home)
 const LINKS = [
   { label: 'Home', id: 'inicio' },
   { label: 'Sobre', id: 'sobre' },
   { label: 'Produtos', id: 'livros' },
+  { label: 'Cadastros', id: 'cadastros' },
+  { label: 'Empréstimos', id: 'emprestimos' },
+  { label: 'Devoluções', id: 'devolucoes' },
   { label: 'Contatos', id: 'contatos' },
 ];
+
+// Páginas próprias de cada módulo. Cada pessoa da equipe adiciona a sua aqui
+// quando a rota estiver pronta, por exemplo:
+//   { label: 'Acervo', href: '/acervo' },
+//   { label: 'Empréstimos', href: '/emprestimos' },
+const PAGES: { label: string; href: string }[] = [];
 
 function BookIcon({ className = '' }: { className?: string }) {
   return (
@@ -39,7 +48,6 @@ export function Header({ title, logoSrc = '/logo.png' }: HeaderProps) {
 
   const isHome = pathname === '/home';
 
-  // Marca en el menú la sección que se está viendo
   useEffect(() => {
     if (!isHome) return;
 
@@ -64,7 +72,10 @@ export function Header({ title, logoSrc = '/logo.png' }: HeaderProps) {
     return isHome && activeId === id;
   }
 
-  // En /home desliza suavemente hasta la sección; en otras rutas navega normal
+  function isPageActive(href: string) {
+    return pathname === href || pathname.startsWith(`${href}/`);
+  }
+
   function handleNavClick(
     event: React.MouseEvent<HTMLAnchorElement>,
     id: string,
@@ -114,7 +125,7 @@ export function Header({ title, logoSrc = '/logo.png' }: HeaderProps) {
         </Link>
 
         {/* Navegación escritorio */}
-        <nav className='hidden items-center gap-8 md:flex'>
+        <nav className='hidden items-center gap-6 md:flex'>
           {LINKS.map((link) => {
             const active = isActive(link.id);
             return (
@@ -129,6 +140,28 @@ export function Header({ title, logoSrc = '/logo.png' }: HeaderProps) {
                 }`}
               >
                 {link.label}
+                <span
+                  className={`absolute -bottom-0.5 left-0 h-0.5 w-full origin-left rounded-full bg-[#b88a44] transition-transform duration-300 ${
+                    active ? 'scale-x-100' : 'scale-x-0 group-hover:scale-x-100'
+                  }`}
+                />
+              </Link>
+            );
+          })}
+
+          {PAGES.map((page) => {
+            const active = isPageActive(page.href);
+            return (
+              <Link
+                key={page.href}
+                href={page.href}
+                className={`group relative py-1 text-sm transition-colors ${
+                  active
+                    ? 'font-semibold text-[#1f3d2e]'
+                    : 'font-medium text-[#6b5a4c] hover:text-[#2b1d14]'
+                }`}
+              >
+                {page.label}
                 <span
                   className={`absolute -bottom-0.5 left-0 h-0.5 w-full origin-left rounded-full bg-[#b88a44] transition-transform duration-300 ${
                     active ? 'scale-x-100' : 'scale-x-0 group-hover:scale-x-100'
@@ -194,6 +227,25 @@ export function Header({ title, logoSrc = '/logo.png' }: HeaderProps) {
                     }`}
                   >
                     {link.label}
+                  </Link>
+                </li>
+              );
+            })}
+
+            {PAGES.map((page) => {
+              const active = isPageActive(page.href);
+              return (
+                <li key={page.href}>
+                  <Link
+                    href={page.href}
+                    onClick={() => setOpen(false)}
+                    className={`block border-b border-[#e4d6b9] py-3 text-base ${
+                      active
+                        ? 'font-semibold text-[#1f3d2e]'
+                        : 'text-[#6b5a4c]'
+                    }`}
+                  >
+                    {page.label}
                   </Link>
                 </li>
               );
